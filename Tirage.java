@@ -2,7 +2,9 @@ package controller;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Hashtable;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 public class Tirage {
@@ -10,17 +12,32 @@ public class Tirage {
 	Random r = new Random();
 	private String mot; 
 	private List<Character> liste = new ArrayList<>(); 
+	private Map<Integer, List<String>> dico = new Hashtable<>();
 
 	public Tirage() throws IOException {
 		this.mot = Dictionnaire.tirerMotAleatoirement(); 
 		for(int i = 0; i < mot.length(); i++) {
 			liste.add(r.nextInt(this.liste.size() +1), this.mot.charAt(i));
 		}
+		
+		for (String motDico : Dictionnaire.copieMots()) {
+			if (bonnesLettres(motDico)) {
+				List<String> motsDeLaMemeTaille = this.dico.get(motDico.length());
+				if (motsDeLaMemeTaille == null) {
+					this.dico.put(motDico.length(),new ArrayList<>());
+					motsDeLaMemeTaille = this.dico.get(motDico.length());
+				}
+			motsDeLaMemeTaille.add(motDico);
+			}
+		}
 	}
 	
+	public Iterable<Character> getLettres() {
+		return liste;
+		}
 	
-	public String getMot() {
-		return mot;
+	public Map<Integer, List<String>> getMot() {
+		return this.dico;
 	}
 
 
@@ -39,9 +56,14 @@ public class Tirage {
 	
 	public void afficher() {
 		for (char c : this.liste) {
-		System.out.print(c);
+			System.out.print(c);
 		}
 		System.out.println();
+	}
+	
+	public boolean estUneSolution(String prop) {
+		List<String> motsSolutionsDeCetteTaille =this.dico.get(prop.length());
+		return motsSolutionsDeCetteTaille != null && motsSolutionsDeCetteTaille.contains(prop);
 		}
 	
 }
